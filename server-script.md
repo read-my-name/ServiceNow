@@ -115,3 +115,27 @@ function onChange(control, oldValue, newValue, isLoading, isTemplate) {
   }
 }
 ```
+
+6. Business Rule script to prevent users from submitting requests for today
+```
+// rightnow stores the current time
+  var rightnow = new GlideDateTime();
+  // Create a GlideDateTime object for the When needed date
+  var whenNeeded = new GlideDateTime(current.u_when_needed);
+  
+  // If the When needed date is before rightnow, do not write the record to the database
+  // Output an error message to the screen
+  if(whenNeeded.before(rightnow)){
+    gs.addErrorMessage("When needed date cannot be in the past.  Your request has not been saved to the database.");
+    current.setAbortAction(true);
+  }
+  // Challenge:  Do not allow same-day requests
+  // Get the date portion of rightnow and whenNeeded (no timestamp)
+  var today = rightnow.getLocalDate();
+  var istoday = whenNeeded.getLocalDate();
+  // Compare today and istoday to see if they are the same day
+  if(today.compareTo(istoday) == 0){
+    gs.addErrorMessage("You cannot submit NeedIt requests for today.");
+    current.setAbortAction(true);
+  }
+```
